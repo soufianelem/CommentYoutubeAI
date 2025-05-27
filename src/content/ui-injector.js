@@ -272,9 +272,8 @@ class UIInjector {
     
     return panel;
   }
-
   /**
-   * Create summary statistics section
+   * Create summary statistics section with enhanced AI transparency
    * @param {Object} results - Analysis results
    * @returns {string} HTML content
    */
@@ -284,14 +283,36 @@ class UIInjector {
         <div class="sentiment-stat">
           <div class="sentiment-stat-number" style="color: #4CAF50;">${results.summary.positive}</div>
           <div class="sentiment-stat-label">Positive</div>
+          <div class="sentiment-stat-percent">${results.summary.positivePercent}%</div>
         </div>
         <div class="sentiment-stat">
           <div class="sentiment-stat-number" style="color: #F44336;">${results.summary.negative}</div>
           <div class="sentiment-stat-label">Negative</div>
+          <div class="sentiment-stat-percent">${results.summary.negativePercent}%</div>
         </div>
         <div class="sentiment-stat">
           <div class="sentiment-stat-number" style="color: #9E9E9E;">${results.summary.neutral}</div>
           <div class="sentiment-stat-label">Neutral</div>
+          <div class="sentiment-stat-percent">${results.summary.neutralPercent}%</div>
+        </div>
+        <div class="sentiment-stat">
+          <div class="sentiment-stat-number" style="color: #FF9800;">${results.summary.other}</div>
+          <div class="sentiment-stat-label">Other</div>
+          <div class="sentiment-stat-percent">${results.summary.otherPercent}%</div>
+        </div>
+      </div>
+      <div class="sentiment-analysis-details">
+        <div class="analysis-transparency">
+          <h4>🤖 AI Analysis Details</h4>
+          <div class="analysis-stats">
+            <span>📊 ${results.total} comments analyzed</span>
+            <span>🔍 ${results.analysisDetails.sentimentWordsFound} sentiment indicators found</span>
+            <span>😊 ${results.analysisDetails.emojisAnalyzed} emojis processed</span>
+            <span>⚡ ${results.analysisDetails.processingTime}ms processing time</span>
+          </div>
+          <div class="analysis-note">
+            <small>💡 "Other" includes comments with low confidence scores that couldn't be reliably classified</small>
+          </div>
         </div>
       </div>
     `;
@@ -338,19 +359,23 @@ class UIInjector {
       ` : ''}
     `;
   }
-
   /**
-   * Create individual comment item
+   * Create individual comment item with AI reasoning
    * @param {Object} comment - Comment data
-   * @param {string} type - 'positive' or 'negative'
+   * @param {string} type - 'positive', 'negative', 'neutral', or 'other'
    * @returns {string} HTML content
    */
   createCommentItem(comment, type) {
     const confidence = Math.round(comment.sentiment.confidence * 100);
-    const maxLength = 150;
+    const score = comment.sentiment.score.toFixed(2);
+    const maxLength = 120;
     const truncatedText = comment.text.length > maxLength 
       ? comment.text.substring(0, maxLength) + '...'
       : comment.text;
+    
+    const aiReasoning = comment.sentiment.reasoning && comment.sentiment.reasoning.length > 0
+      ? comment.sentiment.reasoning.slice(0, 2).join(', ')
+      : 'No specific indicators found';
     
     return `
       <div class="sentiment-comment-item ${type}">
@@ -358,7 +383,11 @@ class UIInjector {
         <div class="sentiment-comment-text">${DOMHelpers.escapeHtml(truncatedText)}</div>
         <div class="sentiment-comment-meta">
           <span class="sentiment-likes">👍 ${comment.likes}</span>
-          <span class="sentiment-confidence">${confidence}% confidence</span>
+          <span class="sentiment-confidence">🎯 ${confidence}% confidence</span>
+          <span class="sentiment-score">📊 Score: ${score}</span>
+        </div>
+        <div class="sentiment-ai-reasoning">
+          <small>🤖 AI detected: ${aiReasoning}</small>
         </div>
       </div>
     `;
@@ -376,12 +405,12 @@ class UIInjector {
     if (this.chart) {
       this.chart.destroy();
     }
-    
-    // Create new chart
+      // Create new chart with all 4 categories
     this.chart = PieChartRenderer.create(canvas, {
       positive: results.summary.positive,
       negative: results.summary.negative,
-      neutral: results.summary.neutral
+      neutral: results.summary.neutral,
+      other: results.summary.other
     });
   }
 

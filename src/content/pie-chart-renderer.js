@@ -9,11 +9,11 @@ class PieChartRenderer {
     this.options = {
       centerX: canvas.width / 2,
       centerY: canvas.height / 2,
-      radius: Math.min(canvas.width, canvas.height) / 2 - 20,
-      colors: {
+      radius: Math.min(canvas.width, canvas.height) / 2 - 20,      colors: {
         positive: '#4CAF50',
         negative: '#F44336',
-        neutral: '#9E9E9E'
+        neutral: '#9E9E9E',
+        other: '#FF9800'
       },
       animation: true,
       animationDuration: 1000,
@@ -28,19 +28,19 @@ class PieChartRenderer {
     this.setupTooltip();
     this.setupInteractions();
   }
-
   /**
-   * Render pie chart with data
-   * @param {Object} data - Chart data with positive, negative, neutral counts
+   * Render pie chart with enhanced data including "Other" category
+   * @param {Object} data - Chart data with positive, negative, neutral, other counts
    */
   render(data) {
     this.data = {
       positive: data.positive || 0,
       negative: data.negative || 0,
-      neutral: data.neutral || 0
+      neutral: data.neutral || 0,
+      other: data.other || 0
     };
     
-    const total = this.data.positive + this.data.negative + this.data.neutral;
+    const total = this.data.positive + this.data.negative + this.data.neutral + this.data.other;
     if (total === 0) {
       this.renderEmptyState();
       return;
@@ -68,6 +68,13 @@ class PieChartRenderer {
         percentage: Math.round((this.data.neutral / total) * 100),
         angle: (this.data.neutral / total) * 2 * Math.PI,
         color: this.options.colors.neutral
+      },
+      {
+        label: 'Other',
+        value: this.data.other,
+        percentage: Math.round((this.data.other / total) * 100),
+        angle: (this.data.other / total) * 2 * Math.PI,
+        color: this.options.colors.other
       }
     ].filter(segment => segment.value > 0);
     
@@ -216,7 +223,7 @@ class PieChartRenderer {
    * Draw center text
    */
   drawCenterText() {
-    const total = this.data.positive + this.data.negative + this.data.neutral;
+    const total = this.data.positive + this.data.negative + this.data.neutral + this.data.other;
     
     this.ctx.fillStyle = '#333';
     this.ctx.font = 'bold 16px Roboto, Arial, sans-serif';
