@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,  "name": "CommentYoutubeAI - Sentiment Analyzer",
+  "version": "1.0.0",
+  "description": "AI-powered real-time YouTube comment sentiment analysis with interactive insights",
+  
+  "permissions": ["activeTab"],
+  "host_permissions": ["*://*.youtube.com/*"],
+    "content_scripts": [{
+    "matches": ["*://*.youtube.com/watch*"],
+    "js": [
+      "src/utils/youtube-detector.js",
+      "src/utils/dom-helpers.js",
+      "src/utils/error-handler.js",
+      "src/content/comment-collector.js",
+      "src/content/sentiment-analyzer.js",
+      "src/content/pie-chart-renderer.js",
+      "src/content/ui-injector.js",
+      "src/content/main.js"
+    ],
+    "css": ["src/styles/injected.css"],
+    "run_at": "document_idle"
+  }],
+  
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  },
+  
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  }
+}
